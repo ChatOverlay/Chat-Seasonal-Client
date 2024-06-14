@@ -1,0 +1,465 @@
+:root {
+    --foreground-color: var(--foreground-color); /* 기본 전경 색상 */
+    --background-color: var(--background-color); /* 기본 배경 색상 */
+    --primary-color: white; /* 강조 색상 */
+  }
+  @keyframes slideInFromLeft {
+    from {
+      transform: translateX(-100%); /* 왼쪽으로 숨겨진 상태에서 시작 */
+      opacity: 0; /* 시작할 때는 투명하게 */
+    }
+    to {
+      transform: translateX(0); /* 최종적으로 원래 위치로 */
+      opacity: 1; /* 완전 불투명하게 */
+    }
+  }
+  
+  @keyframes slideInFromRight {
+    from {
+      transform: translateX(100%); /* Start off-screen to the right */
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0); /* Move to original position */
+      opacity: 1;
+    }
+  }
+  
+  .grid__list {
+    background-color: var(--background-color);
+    animation: slideInFromLeft 0.3s ease-out forwards; /* 애니메이션 적용 */
+    > div {
+      border-top: 1px solid var(--foreground-color);
+      &:first-child {
+        /* 첫번째 요소에 대해서만 border-top을 제거합니다. */
+        border-top: none;
+      }
+    }
+  }
+  
+  .navbar__list {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, var(--background-color), var(--secondary-color) 50%);
+    margin: 3rem 0 0 5rem;
+    height: calc(100vh - 3rem);
+    width: 20rem;
+    font-weight: 700;
+    font-family: "Noto Sans KR";
+    color: var(--primary-color);
+    border-right: 1px solid var(--foreground-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+    @media (max-width: 480px) {
+      width: 100%;
+      top: 6%;
+      height: 88%;
+      margin: 0; /* Remove margin to cover full width */
+      border-right: none; /* Optional: remove border if it interferes visually on a small screen */
+      box-shadow: none; /* Optional: remove shadow if it feels too heavy on mobile */
+      background: none;
+      background-color : var(--background-color);
+    }
+  }
+  
+  
+  
+  .home {
+    background: linear-gradient(to bottom, var(--background-color), var(--secondary-color) 50%);
+    
+    @media (max-width: 480px) {
+      width: calc(100vw - 2rem);
+      padding: 0 1rem 1rem 1rem;
+    }
+  }
+  
+  .helper-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap : 1rem;
+    margin : 0 1rem;
+    
+  }
+  
+  .helper-item {
+    flex: 1 1 calc(50% - 1rem);
+    box-sizing: border-box;
+    border: 1px solid var(--foreground-color);
+    
+    background-color : var(--background-color);
+    cursor: pointer;
+    padding : 0.6rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  
+    animation: slideInFromLeft 0.4s ease-out forwards; /* 애니메이션 적용 */
+    &:hover {
+      background-color: var(--foreground-color);
+      color: var(--background-color);
+      .icon__arrow__container,
+      .likes-count,
+      .comments-count {
+        color: var(--background-color);
+      }
+    }
+  }
+  
+  /* Apply the slide-in animation to the banner */
+  .banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 6rem;
+    max-height: 6rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    width: 90%;
+    height: 100%;
+    overflow: hidden; /* Ensure the content stays within the banner area */
+    position: relative; /* To position the banner items */
+    cursor: pointer;
+    transition: all 0.3s;
+    
+    animation: slideInFromLeft 0.3s ease-out forwards; /* 애니메이션 적용 */
+    &:hover {
+      opacity: 0.9;
+    }
+    .swiper-pagination-bullet {
+      background-color: var(--foreground-color);
+    }
+  
+    /* Swiper 네비게이션 버튼 크기 조정 */
+    .swiper-button-next,
+    .swiper-button-prev {
+      color: transparent;
+    }
+  
+    /* 아이콘 크기를 조절하려면, SVG 아이콘이라면 다음과 같이 조절합니다 */
+    .swiper-button-next::after,
+    .swiper-button-prev::after {
+      font-size: 2rem; /* 아이콘 폰트 크기 조절 */
+    }
+  
+    .swiper-scrollbar-drag {
+      background-color: var(--foreground-color);
+    }
+  }
+  
+  .navbar__list .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    border-radius: 0.5rem;
+  }
+  .scrollable-list-items {
+    flex-grow: 1;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    @media (max-width: 480px) {
+      -webkit-overflow-scrolling: touch; /* Enable smooth scrolling */
+      overflow-y: scroll; /* Allow scrolling */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .scrollable-list-items::-webkit-scrollbar {
+      display: none; /* Hide scrollbar on mobile */
+    }
+  }
+  
+  .scrollable-list-items::-webkit-scrollbar {
+    width: 10px; /* 스크롤바의 너비 */
+    background-color: transparent; /* 스크롤바의 배경 색상 */
+  }
+  
+  .scrollable-list-items::-webkit-scrollbar-thumb {
+    background-color: var(--foreground-color); /* 스크롤바 핸들의 색상 */
+    border-radius: 5px; /* 스크롤바 핸들의 모서리를 둥글게 */
+    border: 2px solid var(--background-color); /* 스크롤바 핸들 주변에 테두리 추가 */
+  }
+  
+  .scrollable-list-items::-webkit-scrollbar-thumb:hover {
+    cursor: pointer;
+  }
+  
+  .navbar__list__item,
+  .navbar__list__item_home {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    padding: 1rem;
+    min-height: 3rem;
+    margin: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    justify-content: space-between;
+    transition: all 0.3s;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--foreground-color);
+    background-color : var(--background-color);
+    scroll-behavior: smooth;
+    overflow-y: auto;
+    &:hover {
+      background-color: var(--foreground-color);
+      color: var(--background-color);
+      .icon__arrow__container,
+      .likes-count,
+      .comments-count {
+        color: var(--background-color);
+      }
+    }
+    &:first-child {
+      margin-top: 1rem;
+      @media (max-width: 480px) {
+        margin-top: 0;
+      }
+    }
+    animation: slideInFromLeft 0.3s ease-out forwards; /* 애니메이션 적용 */
+    @media (max-width: 480px) {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none; /* Optional: remove shadow if it feels too heavy on mobile */
+    }
+  }
+  
+  .navbar__list__item_home {
+    @media (max-width: 480px) {
+      margin: 0.2rem 0.5rem; /* 모바일에서도 여백 유지 */
+      border: 1px solid var(--foreground-color);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .navbar__list__item.selected,
+  .navbar__list__item_home.selected {
+    @media (min-width: 480px) {
+      background-color: var(--foreground-color);
+      color: var(--background-color);
+      .icon__arrow__container,
+      .likes-count,
+      .comments-count {
+        color: var(--background-color);
+      }
+    }
+  }
+  
+  .navbar__list__item.inactive {
+    opacity: 0.4;
+    color: #a1acad;
+    background-color: var(--background-color); /* 배경 색상 변경 없음 */
+  
+    cursor: default; /* 마우스 커서를 기본 커서로 설정 */
+  }
+  .navbar__list__item_home.inactive {
+    opacity: 0.4;
+    color: #a1acad;
+    background-color: var(--background-color); /* 배경 색상 변경 없음 */
+  
+    cursor: default; /* 마우스 커서를 기본 커서로 설정 */
+  }
+  .navbar__list__item.inactive .icon__arrow__container,
+  .navbar__list__item.inactive:hover .icon__arrow__container,
+  .navbar__list__item_home.inactive .icon__arrow__container,
+  .navbar__list__item_home.inactive:hover .icon__arrow__container {
+    /* inactive 상태일 때 화살표 컨테이너에 대한 스타일 */
+    color: #a1acad; /* 비활성화 상태의 텍스트 색상 */
+  }
+  .mypage__list__item {
+    display: flex;
+    flex-direction: row;
+    cursor: pointer;
+    padding: 1rem;
+    min-height: 3rem;
+    justify-content: space-between;
+    
+    transition: all 0.3s;
+    border-bottom: 1px solid var(--foreground-color);
+    &:hover {
+      background-color: var(--foreground-color);
+      color: var(--background-color);
+    }
+    animation: slideInFromLeft 0.3s ease-out forwards; /* 애니메이션 적용 */
+  }
+  
+  .mypage__list__item.selected {
+    @media (min-width: 480px) {
+      background-color: var(--foreground-color);
+      color: var(--background-color);
+    }
+  }
+  
+  .icon__arrow__container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 3rem;
+    margin-right: -0.5rem;
+    color: var(--foreground-color);
+    cursor: pointer;
+    transition: all 0.3s;
+    &:hover {
+      color: var(--background-color);
+    }
+  }
+  
+  .question-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    max-width: 10vw;
+  }
+  
+  .question-date {
+    font-size: 0.7rem;
+    font-weight: normal;
+    white-space: nowrap; /* Prevent the text from wrapping */
+    text-overflow: ellipsis; /* Add ellipsis (...) at the end if the text overflows */
+  }
+  
+  .question-title-container {
+    display: flex;
+    flex-direction: row;
+    white-space: nowrap; /* Prevent the text from wrapping */
+    text-overflow: ellipsis; /* Add ellipsis (...) at the end if the text overflows */
+  }
+  
+  .sub-title-container {
+    display: flex;
+    gap: 0.2rem;
+    font-weight: normal;
+    font-size: 0.8rem;
+    white-space: nowrap; /* Prevent the text from wrapping */
+    text-overflow: ellipsis; /* Add ellipsis (...) at the end if the text overflows */
+  }
+  .likes-count svg,
+  .comments-count svg {
+    font-size: 1.2rem; /* Adjust the icon size here */
+    color: inherit; /* Ensure the icons inherit the text color */
+  }
+  
+  .likes-count,
+  .comments-count {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem; /* Space between the icon and the number */
+    color: var(--primary-color); /* Use foreground color for text */
+    transition: all 0.3s ease-in;
+  }
+  
+  .icon-liked {
+    color: var(
+      --foreground-color
+    ); /* 사용자가 좋아요를 누른 경우 검은색으로 표시 */
+  }
+  
+  .icon-container {
+    display: flex;
+    position: fixed;
+    bottom: 2vh;
+    left: 20rem;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--background-color);
+    background-color: var(--foreground-color);
+    border-radius: 20rem;
+    min-height: 3rem;
+    width: 3rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid var(--background-color);
+  
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+  .write-container {
+    box-shadow: 0 -3px 3px rgba(0, 0, 0, 0.1);
+    bottom: 0;
+    width: 100%;
+    z-index : 20;
+    background-color : var(--background-color);
+    transition: transform 0.3s ease-in-out; /* 추가 */
+  }
+  
+  .write-container.hidden {
+    transform: translateY(100%); /* 아래로 숨기기 */
+  }
+  
+  .mobile-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--background-color);
+    background-color: var(--foreground-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0.8rem 0.4rem;
+    margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+    &:hover {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+    @media (min-width: 480px) {
+      margin: 0.5rem;
+    }
+  }
+  .icon-container:hover {
+    opacity: 0.6;
+  }
+  .sticky-container {
+    position: sticky;
+    z-index: 50; /* 다른 요소들 위에 표시 */
+    background-color: var(--background-color); /* 배경 색상 설정 */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    top: 0;
+    box-shadow: 0 3px 3px rgba(0, 0, 0, 0.1); /* 아래쪽 음영 그림자 설정 */
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out,
+      height 0.3s ease-in-out;
+    @media (max-width: 480px) {
+      padding-bottom: 0.2rem;
+      padding-left: 0.5rem;
+    }
+  }
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    z-index: 1;
+  }
+  
+  .loading-container {
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .label-container {
+    @media (max-width: 480px) {
+      margin-right: 1rem;
+    }
+  }
+  
