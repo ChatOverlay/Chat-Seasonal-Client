@@ -6,6 +6,7 @@ import VerticalAppBar from "./components/navbar/VerticalAppBar";
 import ChatList from "./pages/chat/ChatList";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import RegisterPage from "./pages/login/RegisterPage";
+import LoginPage from "./pages/login/LoginPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <VerticalAppBar />
           <Routes>
             <Route path="/" element={<RegisterPage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/*" element={<ChatList />} />
             

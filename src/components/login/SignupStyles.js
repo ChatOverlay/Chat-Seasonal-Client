@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
 
-export const SignupContainer = styled.div`
+export const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
@@ -85,7 +85,7 @@ export const ButtonContainer = styled.div`
   margin-top: 0.5rem;
 `;
 
-export const SignupButton = styled.div`
+export const AuthButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -112,7 +112,7 @@ export const VerifyButton = styled.button`
   background-color: ${({ disabled }) => (disabled ? "#cccccc" : "#0164d8")};
   border-radius: 0.5rem;
   color: var(--background-color);
-  border : none;
+  border: none;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   font-family: "Noto Sans KR";
   transition: all 0.3s ease;

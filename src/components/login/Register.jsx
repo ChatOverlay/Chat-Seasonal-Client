@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { TextField, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
+import { TextField, FormControl, InputLabel } from "@mui/material";
 import Logo from "../../assets/backgroundImg/clatalk.png";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LoadingModal from "../modals/LoadingModal";
 import {
-  SignupContainer,
+  AuthContainer,
   StyledImgContainer,
   StyledSlogan,
   StyledImg,
@@ -114,7 +114,7 @@ export default function Signup() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/verifyCode`,
+        `${import.meta.env.VITE_API_URL}/auth/verifyEmailCode`,
         {
           method: "POST",
           headers: {
@@ -152,14 +152,14 @@ export default function Signup() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ studentNumber, name, password, email, course, verificationCode }),
+          body: JSON.stringify({ studentNumber, name, password, email, course }),
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        alert(data.message);
-        navigate("../home");
+        localStorage.setItem("accessToken", data.accessToken); // JWT 토큰 저장
+        navigate("/home");
       } else {
         const error = await response.json();
         alert(error.message);
@@ -172,7 +172,7 @@ export default function Signup() {
   };
 
   return (
-    <SignupContainer>
+    <AuthContainer>
       {loading && <LoadingModal />}
       <Container>
         <StyledImgContainer>
@@ -209,19 +209,17 @@ export default function Signup() {
         <InputContainer>
           <FormControl sx={formControlSx}>
             <InputLabel id="course-select-label">코스</InputLabel>
-            <Select
-              labelId="course-select-label"
-              id="course-select"
-              value={course}
-              label="코스"
-              onChange={(e) => setCourse(e.target.value)}
-            >
-              {courses.map((course) => (
-                <MenuItem key={course._id} value={course.courseName}>
-                  {course.courseName}
-                </MenuItem>
-              ))}
-            </Select>
+            <select
+            id="course-select"
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
+          >
+            {courses.map((course) => (
+              <option key={course._id} value={course.courseName}>
+                {course.courseName}
+              </option>
+            ))}
+          </select>
           </FormControl>
         </InputContainer>
         <InputContainer>
@@ -236,7 +234,7 @@ export default function Signup() {
         </InputContainer>
         <InputContainer>
           <TextField
-            label="이메일"
+            label="학교 이메일"
             variant="outlined"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -267,7 +265,9 @@ export default function Signup() {
         <ButtonContainer>
           <SignupButton onClick={handleSignup}>회원가입</SignupButton>
         </ButtonContainer>
+        <p>아이디가 있으신가요? <Link to="/login">로그인하러가기</Link></p>
+     
       </Container>
-    </SignupContainer>
+    </AuthContainer>
   );
 }
