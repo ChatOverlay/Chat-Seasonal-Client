@@ -14,7 +14,7 @@ import {
   SubmitButton,
   textFieldSx,
   formControlSx,
-  VerifyButton
+  VerifyButton,
 } from "./AuthStyles"; // 스타일 컴포넌트 임포트
 
 export default function Signup() {
@@ -30,12 +30,15 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false); // 이메일 인증 상태
   const [verificationSent, setVerificationSent] = useState(false); // 인증 코드 전송 상태
+  const [isEmailButtonDisabled, setEmailButtonDisabled] = useState(true); // 이메일 확인 버튼 비활성화 상태
 
   useEffect(() => {
     // 모든 코스 가져오기
     const fetchCourses = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/seasoncourses`);
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/seasoncourses`
+        );
         if (response.ok) {
           const data = await response.json();
           setCourses(data);
@@ -49,6 +52,11 @@ export default function Signup() {
 
     fetchCourses();
   }, []);
+
+  useEffect(() => {
+    // 이메일 입력 값이 변경될 때마다 버튼 비활성화 상태 업데이트
+    setEmailButtonDisabled(!email.endsWith("@gachon.ac.kr") || verificationSent);
+  }, [email, verificationSent]);
 
   const handleCheckEmail = async () => {
     if (!email.endsWith("@gachon.ac.kr")) {
@@ -76,7 +84,7 @@ export default function Signup() {
         } else {
           await sendVerificationCode(email);
           setVerificationSent(true);
-          alert("인증 코드가 전송되었습니다.");
+          setEmailButtonDisabled(true); // 이메일 확인 버튼 비활성화
         }
       } else {
         console.error("이메일 확인 중 오류 발생:", response.statusText);
@@ -138,7 +146,14 @@ export default function Signup() {
 
   // 회원가입 함수
   const handleSignup = async () => {
-    if (!studentNumber || !name || !password || !email || !course || !emailVerified) {
+    if (
+      !studentNumber ||
+      !name ||
+      !password ||
+      !email ||
+      !course ||
+      !emailVerified
+    ) {
       alert("모든 필수 항목을 입력해주세요.");
       return;
     }
@@ -152,7 +167,13 @@ export default function Signup() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ studentNumber, name, password, email, course }),
+          body: JSON.stringify({
+            studentNumber,
+            name,
+            password,
+            email,
+            course,
+          }),
         }
       );
 
@@ -208,18 +229,17 @@ export default function Signup() {
         </InputContainer>
         <InputContainer>
           <FormControl sx={formControlSx}>
-            <InputLabel id="course-select-label">코스</InputLabel>
             <select
-            id="course-select"
-            value={course}
-            onChange={(e) => setCourse(e.target.value)}
-          >
-            {courses.map((course) => (
-              <option key={course._id} value={course.courseName}>
-                {course.courseName}
-              </option>
-            ))}
-          </select>
+              id="course-select"
+              value={course}
+              onChange={(e) => setCourse(e.target.value)}
+            >
+              {courses.map((course) => (
+                <option key={course._id} value={course.courseName}>
+                  {course.courseName}-{course.courseCode}-{course.professor}
+                </option>
+              ))}
+            </select>
           </FormControl>
         </InputContainer>
         <InputContainer>
@@ -239,10 +259,11 @@ export default function Signup() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             sx={textFieldSx}
+            disabled={verificationSent} // 이메일 입력 필드 비활성화
           />
           <VerifyButton
             onClick={handleCheckEmail}
-            disabled={!email.endsWith("@gachon.ac.kr")} // 조건 추가
+            disabled={isEmailButtonDisabled} // 이메일 확인 버튼 비활성화
           >
             이메일 확인
           </VerifyButton>
@@ -257,16 +278,15 @@ export default function Signup() {
               sx={textFieldSx}
               disabled={emailVerified}
             />
-            {!emailVerified && (
-              <VerifyButton onClick={handleVerifyCode}>인증</VerifyButton>
-            )}
+              <VerifyButton onClick={handleVerifyCode}  disabled={emailVerified}>인증하기</VerifyButton>
           </InputContainer>
         )}
         <ButtonContainer>
           <SubmitButton onClick={handleSignup}>회원가입</SubmitButton>
         </ButtonContainer>
-        <p>아이디가 있으신가요? <Link to="/login">로그인하러가기</Link></p>
-     
+        <p>
+          아이디가 있으신가요? <Link to="/">로그인하러가기</Link>
+        </p>
       </Container>
     </AuthContainer>
   );

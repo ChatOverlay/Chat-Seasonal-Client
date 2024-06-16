@@ -68,6 +68,17 @@ export const Container = styled.div`
   width: 100%;
   gap: 0.5rem;
   justify-content: flex-end; /* FormContainer를 우측으로 정렬 */
+  p {
+    font-size: 1rem;
+    font-family: "Noto Sans KR";
+    text-align: center;
+    a {
+      transition: all 0.3s;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
 `;
 
 export const InputContainer = styled.div`
@@ -134,8 +145,12 @@ export const textFieldSx = (theme) => ({
     "&:hover fieldset": { borderColor: theme.background },
     "&.Mui-focused fieldset": { borderColor: theme.background },
   },
-  ".MuiInputBase-input": { color: theme.primaryColor },
+  ".MuiInputBase-input": {
+    color: theme.primaryColor,
+    fontFamily: "Noto Sans KR", // fontFamily 적용
+  },
 });
+
 
 export const formControlSx = {
   width: "100%",
@@ -146,3 +161,19 @@ export const formControlSx = {
     fontFamily: "Noto Sans KR",
   },
 };
+
+export const StyledSelect = styled.select`
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  font-family: "Noto Sans KR";
+  option {}
+  &:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+  
+`;

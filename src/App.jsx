@@ -15,8 +15,8 @@ function App() {
         <SharedStateProvider>
           <VerticalAppBar />
           <Routes>
-            <Route path="/" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />  
+          <Route path="/signup" element={<RegisterPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/*" element={<ChatList />} />
             
