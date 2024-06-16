@@ -17,12 +17,12 @@ import {
 
 export default function Login() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const [studentNumber, setStudentNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    if (!studentNumber || !password) {
       alert("모든 필수 항목을 입력해주세요.");
       return;
     }
@@ -36,7 +36,7 @@ export default function Login() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ studentNumber, password }),
         }
       );
 
@@ -72,10 +72,10 @@ export default function Login() {
         </StyledImgContainer>
         <InputContainer>
           <TextField
-            label="이메일"
+            label="학번"
             variant="outlined"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={studentNumber}
+            onChange={(e) => setStudentNumber(e.target.value)}
             onKeyPress={handleKeyPress}
             sx={textFieldSx}
           />
