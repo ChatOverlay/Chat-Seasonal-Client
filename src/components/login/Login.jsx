@@ -11,9 +11,9 @@ import {
   Container,
   InputContainer,
   ButtonContainer,
-  SignupButton as LoginButton, // SignupButton을 LoginButton으로 재사용
+  SubmitButton,
   textFieldSx,
-} from "./SignupStyles"; // SignupStyles 임포트
+} from "./AuthStyles"; // SignupStyles 임포트
 
 export default function Login() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("accessToken", data.accessToken); // JWT 토큰 저장
+        localStorage.setItem("token", data.accessToken); // JWT 토큰 저장
         alert("로그인 성공");
         navigate("/home");
       } else {
@@ -54,6 +54,12 @@ export default function Login() {
       alert("로그인에 실패했습니다.");
     }
     setLoading(false); // Hide loading spinner
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
   };
 
   return (
@@ -70,6 +76,7 @@ export default function Login() {
             variant="outlined"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyPress={handleKeyPress}
             sx={textFieldSx}
           />
         </InputContainer>
@@ -80,11 +87,12 @@ export default function Login() {
             variant="outlined"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
             sx={textFieldSx}
           />
         </InputContainer>
         <ButtonContainer>
-          <LoginButton onClick={handleLogin}>로그인</LoginButton>
+          <SubmitButton onClick={handleLogin}>로그인</SubmitButton>
         </ButtonContainer>
         <p>계정이 없으신가요? <Link to="/signup">회원가입하러가기</Link></p>
       </Container>

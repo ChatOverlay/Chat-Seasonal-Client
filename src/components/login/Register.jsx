@@ -11,11 +11,11 @@ import {
   Container,
   InputContainer,
   ButtonContainer,
-  SignupButton,
+  SubmitButton,
   textFieldSx,
   formControlSx,
   VerifyButton
-} from "./SignupStyles"; // 스타일 컴포넌트 임포트
+} from "./AuthStyles"; // 스타일 컴포넌트 임포트
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -158,7 +158,7 @@ export default function Signup() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem("accessToken", data.accessToken); // JWT 토큰 저장
+        localStorage.setItem("token", data.accessToken); // JWT 토큰 저장
         navigate("/home");
       } else {
         const error = await response.json();
@@ -263,7 +263,7 @@ export default function Signup() {
           </InputContainer>
         )}
         <ButtonContainer>
-          <SignupButton onClick={handleSignup}>회원가입</SignupButton>
+          <SubmitButton onClick={handleSignup}>회원가입</SubmitButton>
         </ButtonContainer>
         <p>아이디가 있으신가요? <Link to="/login">로그인하러가기</Link></p>
      

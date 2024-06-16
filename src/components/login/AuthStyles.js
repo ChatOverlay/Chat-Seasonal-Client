@@ -85,7 +85,7 @@ export const ButtonContainer = styled.div`
   margin-top: 0.5rem;
 `;
 
-export const AuthButton = styled.div`
+export const SubmitButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
