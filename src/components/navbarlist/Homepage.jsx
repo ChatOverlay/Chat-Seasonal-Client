@@ -17,9 +17,10 @@ export default function HomePage() {
 
   useLoadingTimeout(loading, 5000); // 로딩 시간 초과 시 Login 창으로 이동
 
+  console.log("랜더링됨");
+
   useEffect(() => {
-    async function fetchCourses() {
-      setLoading(true);
+    const fetchCourses = async () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/user/courses`,
@@ -36,13 +37,13 @@ export default function HomePage() {
       } finally {
         setLoading(false);
       }
-    }
+    };
+
     fetchCourses();
   }, []);
 
   useEffect(() => {
-    async function fetchMileage() {
-      setMileageLoading(true);
+    const fetchMileage = async () => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/user/mileage`,
@@ -59,7 +60,8 @@ export default function HomePage() {
       } finally {
         setMileageLoading(false);
       }
-    }
+    };
+
     fetchMileage();
   }, [newAdded]);
 

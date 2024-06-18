@@ -94,7 +94,7 @@ export default function VerticalAppBar() {
     } else {
       setSectionAndActiveIcon(0, 0);
     }
-  }, [location.pathname]);
+  }, []);
 
 
   return (
@@ -112,7 +112,7 @@ export default function VerticalAppBar() {
           <IconContainer style={{ opacity: 1 }} onClick={handleOption}>
             <SettingsIcon />
           </IconContainer>
-          {activeIcon === 3 && (
+          {activeIcon === 1 && (
             <IconContainer onClick={handleLogout} style={{ opacity: 1 }}>
               <LogoutIcon />
             </IconContainer>
@@ -179,7 +179,7 @@ const AppBar = styled.div`
 const FirstIconWrapper = styled.div`
   @media (max-width: 480px) {
     display: flex;
-    width: 80%;
+    width: 50%;
     height: 100%;
     justify-content: space-between;
   }
