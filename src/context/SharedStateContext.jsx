@@ -1,15 +1,16 @@
-import React, { createContext, useState, useContext } from 'react';
+import { createContext, useState, useContext } from 'react';
+import PropTypes from 'prop-types';
 
 const SharedStateContext = createContext();
 
 export const useSharedState = () => useContext(SharedStateContext);
 
 export const SharedStateProvider = ({ children }) => {
-  const [newAdded, setnewAdded] = useState(false);
+  const [newAdded, setNewAdded] = useState(false);
 
   const addNewData = () => {
-    setnewAdded(true);
-    setTimeout(() => setnewAdded(false), 500); // Reset after short delay
+    setNewAdded(true);
+    setTimeout(() => setNewAdded(false), 500); // Reset after short delay
   };
 
   return (
@@ -17,4 +18,8 @@ export const SharedStateProvider = ({ children }) => {
       {children}
     </SharedStateContext.Provider>
   );
+};
+
+SharedStateProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

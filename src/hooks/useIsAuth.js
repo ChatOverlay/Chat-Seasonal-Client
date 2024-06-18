@@ -8,7 +8,7 @@ export default function useIsAuth() {
     const verifyToken = async (token) => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/verifyToken`,
+          `${import.meta.env.VITE_API_URL}/auth/verifyToken`,
           {
             method: "GET",
             headers: {

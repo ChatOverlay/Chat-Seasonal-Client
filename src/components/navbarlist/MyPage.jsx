@@ -12,7 +12,6 @@ export default function MyPage() {
   const [nickName, setNickName] = useState("");
   const [profilePictureUrl, setProfilePictureUrl] = useState(null);
   const [mileage, setMileage] = useState(0); // 마일리지 상태 추가
-  const [totalMileage, setTotalMileage] = useState(0); // 총 마일리지 상태 추가
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef(null);
@@ -47,9 +46,8 @@ export default function MyPage() {
       console.error("Error resetting profile picture to default:", error);
     }
   };
-  //이미지 관련
+
   const handleChangePicture = () => {
-    // 파일 입력 트리거
     fileInputRef.current.click();
     setShowModal(false);
   };
@@ -62,29 +60,28 @@ export default function MyPage() {
     }
 
     setShowModal(false);
-    handleFileUpload(file); // 파일 업로드 처리 함수 호출
+    handleFileUpload(file);
   };
+
   const handleFileUpload = async (file) => {
-    // 파일 객체를 매개변수로 받도록 수정
     const formData = new FormData();
     formData.append("profilePicture", file);
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/user/upload-profile-picture`,
+        `${import.meta.env.VITE_API_URL}/user/upload-profile-picture`,
         {
           method: "POST",
           body: formData,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Content-Type을 설정하지 않습니다.
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Profile picture uploaded successfully.");
-        setProfilePictureUrl(data.profilePictureUrl); // 서버 응답에서 올바른 필드명 사용
+        setProfilePictureUrl(data.profilePictureUrl);
       } else {
         console.error("Failed to upload profile picture.");
       }
@@ -96,7 +93,7 @@ export default function MyPage() {
   const updateNickName = async (newNickName) => {
     if (newNickName.length > 8) {
       alert("닉네임은 최대 8글자까지 가능합니다.");
-      return; // 여기서 함수 실행을 중단합니다.
+      return;
     }
 
     const token = localStorage.getItem("token");
@@ -107,7 +104,7 @@ export default function MyPage() {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/user/update-nickname`,
+        `${import.meta.env.VITE_API_URL}/user/update-nickname`,
         {
           method: "POST",
           headers: {
@@ -132,12 +129,11 @@ export default function MyPage() {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      setLoading(true);
       const token = localStorage.getItem("token");
       if (token) {
         try {
           const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/user/info`,
+            `${import.meta.env.VITE_API_URL}/user/info`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -161,6 +157,28 @@ export default function MyPage() {
 
     fetchUserInfo();
   }, [profilePictureUrl]);
+
+  useEffect(() => {
+    const fetchMileage = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/user/mileage`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setMileage(data.totalMileage);
+      } catch (error) {
+        console.error("Error fetching mileage data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMileage();
+  }, []);
 
   return (
     <>
@@ -215,10 +233,7 @@ export default function MyPage() {
                 )}
               </NickNameContainer>
             </MyContainer>
-            <MyNavbarList
-              mileage={mileage}
-              totalMileage={totalMileage}
-            />
+            <MyNavbarList mileage={mileage} />
           </>
         )}
       </div>

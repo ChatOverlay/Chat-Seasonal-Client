@@ -5,18 +5,21 @@ import SendIcon from "@mui/icons-material/Send";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import TopBar from "../../components/topbar/TopBar";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
 import BackgroundImage from "../../assets/backgroundImg/Gachon_Muhan2.png";
 import { useSharedState } from "../../context/SharedStateContext";
 import { isLectureInSession } from "../../utils/timeUtils";
 import useMobileNavigate from "../../hooks/useMobileNavigate";
 
-const socket = io(`${import.meta.env.VITE_API_URL}`); // 여러분의 서버 주소로 변경하세요
+const socket = io(`${import.meta.env.VITE_API_URL}`, {
+  query: {
+    token: localStorage.getItem('token') // JWT 토큰을 query에 포함
+  }
+});
 
 export default function Chat() {
   const navigate = useNavigate();
   const location = useLocation();
-  const roomId = location.state?.roomId;
+  const courseId = location.state?.roomId;
   const [message, setMessage] = useState(""); //메시지
   const [messages, setMessages] = useState([]); //메시지 배열
   const messagesEndRef = useRef(null);
@@ -32,9 +35,9 @@ export default function Chat() {
   };
 
   const sendMessage = () => {
-    if (!courseTime) {
+    if (courseTime) {
       alert("해당 수업 시간이 아닙니다.");
-      navigate("/chatlist");
+      navigate("/chat");
       return;
     }
     if (message) {
@@ -50,34 +53,61 @@ export default function Chat() {
       addNewData();
     }
   };
+
   const handleReport = async (reportedUserId, reportedUsername, verify) => {
     const token = localStorage.getItem("token");
+    console.log(reportedUserId, reportedUsername, verify);
     if (!verify) {
       if (window.confirm(`${reportedUsername}을(를) 신고하시겠습니까?`)) {
-        try {
-          const response = await fetch(
-            `${import.meta.env.VITE_API_URL}/api/reportUser`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({ reportedUserId }),
+        const reason = prompt("신고 사유를 입력하세요:");
+        if (reason) {
+          try {
+            const response = await fetch(
+              `${import.meta.env.VITE_API_URL}/report/reportUser`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ reportedUserId, reason }),
+              }
+            );
+  
+            if (!response.ok) {
+              if (response.status === 400) {
+                // If the response status is 400, check the message
+                const data = await response.json();
+                if (data.message === '오늘 이미 이 사용자를 신고했습니다.') {
+                  alert("오늘 이미 이 사용자를 신고했습니다.");
+                } else {
+                  throw new Error(`서버 오류: ${response.status} ${data.message}`);
+                }
+              } else {
+                const errorText = await response.text();
+                throw new Error(`서버 오류: ${response.status} ${errorText}`);
+              }
+            } else {
+              const data = await response.json();
+              alert(data.message);
             }
-          );
-
-          const data = await response.json();
-          alert(data.message);
-        } catch (error) {
-          console.error("Error reporting user:", error);
+          } catch (error) {
+            console.error("사용자 신고 중 오류 발생:", error);
+            alert("사용자 신고 중 오류 발생: " + error.message);
+          }
+        } else {
+          alert("신고 사유를 입력해야 합니다.");
         }
       }
     }
   };
+  
+  
+  
+  
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/api/course/${roomId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/seasoncourses/${courseId}`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -89,16 +119,16 @@ export default function Chat() {
         return response.json();
       })
       .then((data) => {
-        const activeSession = isLectureInSession(data.courseTime); // Set the course name received from the server
+        const activeSession = isLectureInSession(data.lectureTime);
         setCourseName(data.courseName);
         setCourseTime(activeSession);
       })
       .catch((error) => {
-        alert("해당 수업을 클릭해서 접속해주세요."); // Custom alert message
+        alert("해당 수업을 클릭해서 접속해주세요.");
         console.error("직접적인 접속을 제어합니다.", error);
       });
-  }, [navigate, courseTime]);
-  
+  }, [navigate, courseId]);
+
   useEffect(() => {
     setMessages([]);
     socket.emit("joinRoom", titleName);
@@ -107,35 +137,33 @@ export default function Chat() {
       scrollToBottom();
     });
 
-    // 마일리지 정보 갱신 리스너
+    console.log(messages);
     socket.on("mileageUpdated", (data) => {
       setMileage(data.newMileage);
     });
     socket.on("error", (error) => {
       if (error.message) {
-        alert(error.message); // Display error message
-        navigate("/chatlist"); // Redirect if the course is not found
+        alert(error.message);
+        navigate("/chat");
       }
     });
     return () => {
       socket.off("roomJoined");
       socket.off("message");
-
       socket.off("error");
       socket.off("mileageUpdated");
     };
-  }, [navigate, titleName]);
+  }, []);
 
   useEffect(() => {
-    scrollToBottom(); // 메시지 목록이 업데이트 될 때마다 스크롤
-  }, [messages]); // messages 배열이 변경될 때마다 실행
+    scrollToBottom();
+  }, [messages]);
 
-  // 여기서 초기 마일리지 로드 및 업데이트 로직 구현
   useEffect(() => {
     const token = localStorage.getItem("token");
-    // 서버로부터 초기 마일리지 정보를 요청합니다.
     socket.emit("getInitialMileage", { token });
   }, []);
+
   return (
     <>
       <AppContainer show={closeOption}>
@@ -161,7 +189,7 @@ export default function Chat() {
                   {!msg.isCurrentUser && <UserName>{msg.userName}</UserName>}
                   <ContentContainer user={msg.isCurrentUser ? "me" : ""}>
                     {msg.profilePictureUrl &&
-                      !msg.isCurrentUser && ( // 여기에 조건을 추가
+                      !msg.isCurrentUser && (
                         <IconContainer>
                           <img
                             src={msg.profilePictureUrl}
@@ -175,7 +203,7 @@ export default function Chat() {
                         </IconContainer>
                       )}
                     {!msg.profilePictureUrl &&
-                      !msg.isCurrentUser && ( // 여기에 조건을 추가
+                      !msg.isCurrentUser && (
                         <AccountCircleIcon
                           sx={{
                             fontSize: "2.5rem",
@@ -238,14 +266,15 @@ const slideDownToBottom = keyframes`
     opacity: 0;
   }
 `;
-//App 컨테이너
+
 const AppContainer = styled.div`
   display: flex;
   position: relative;
   margin-left: ${({ show }) => (show ? "5rem" : "25.05rem")};
   background-color: var(--background-color);
   flex-direction: column;
-  transition: all 0.3s ease-in; // Apply transition only to opacity
+  transition: all 0.3s ease-in;
+  font-family : "Noto Sans KR";
   height: 100vh;
   z-index: 25;
   &::before {
@@ -255,33 +284,31 @@ const AppContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url(${BackgroundImage}); // Set the background image
-    background-size: cover; // Cover the entire container
-    background-repeat: no-repeat; // Prevent repeating the background image
-    background-position: center; // Center the background image
-    opacity: 0.3; // Set the opacity for the background image only
-    z-index: -1; // Ensure the pseudo-element is behind the content
+    background-image: url(${BackgroundImage});
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.3;
+    z-index: -1;
   }
   @media (max-width: 480px) {
     margin-left: 0;
     width: 100vw;
     height: 100vh;
-    position: fixed; //이걸 해야 해당 스크롤하면서 올라올 때 자연스럽게 올라옴
+    position: fixed;
     animation: ${({ show }) => (!show ? slideUpFromBottom : slideDownToBottom)}
       0.4s ease-in-out forwards;
   }
 `;
 
-//채팅 컨테이너
 const ChatContainer = styled.div`
   height: 90%;
   display: flex;
   font-size: 1.3rem;
-  flex-direction: column; // 메시지를 아래에서 위로 쌓도록 설정
+  flex-direction: column;
   z-index: 100;
 `;
 
-//입력 컨테이너
 const InputContainer = styled.div`
   display: flex;
   position: absolute;
@@ -294,12 +321,10 @@ const InputContainer = styled.div`
   box-shadow: 0 -4px 4px 0 rgba(0, 0, 0, 0.2);
 `;
 
-//입력 칸
 const StyledInput = styled.input`
   border: none;
   padding-left: 1rem;
   border-radius: 2rem;
-
   color: var(--primary-color);
   background-color: var(--background-color);
   font-size: 1.2rem;
@@ -314,7 +339,6 @@ const StyledInput = styled.input`
   }
 `;
 
-// 제출 버튼 컴포넌트
 const StyledButton = styled.div`
   display: flex;
   justify-content: center;
@@ -333,8 +357,6 @@ const StyledButton = styled.div`
   }
 `;
 
-
-// 마일리지 정보와 전송 아이콘을 포함하는 별도의 컨테이너를 생성합니다.
 const MileageContainer = styled.span`
   display: flex;
   align-items: center;
@@ -344,24 +366,23 @@ const MileageContainer = styled.span`
   padding: 0.3rem 0.6rem;
   margin-right: 1rem;
   border-radius: 1.5rem;
-  white-space: nowrap; // 텍스트가 줄바꿈 되지 않도록 설정
+  white-space: nowrap;
   font-family: "Noto Sans KR";
 `;
 
 const MessagesContainer = styled.div`
   flex-grow: 1;
-  overflow-y: auto; // 여기서 스크롤이 발생하도록 설정
-  scrollbar-width: none; // 파이어폭스용 스크롤바 숨김
-  -ms-overflow-style: none; // IE, 엣지용 스크롤바 숨김
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   &::-webkit-scrollbar {
-    display: none; // 웹킷(크롬, 사파리 등) 브라우저용 스크롤바 숨김
+    display: none;
   }
   display: flex;
-  flex-direction: column; // 메시지를 위에서 아래로 쌓음
-  margin: 1rem;
+  flex-direction: column;
+  padding : 1rem;
 `;
 
-// 메시지 컨테이너에 이름을 표시하는 부분을 추가합니다.
 const MessageContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -374,7 +395,6 @@ const MessageContainer = styled.div`
   }
 `;
 
-// 사용자 이름을 표시하는 스타일 컴포넌트입니다.
 const UserName = styled.div`
   font-size: 0.8rem;
   font-weight: bold;
@@ -382,7 +402,7 @@ const UserName = styled.div`
   color: var(--primary-color);
   text-align: ${(props) => (props.user === "me" ? "right" : "left")};
 `;
-//아이콘 컨테이너
+
 const IconContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -390,19 +410,15 @@ const IconContainer = styled.div`
   color: var(--foreground-color);
 `;
 
-// 메시지 및 시간을 포함하는 ContentContainer에 적용할 스타일을 업데이트합니다.
 const ContentContainer = styled.div`
   display: flex;
   flex-direction: ${(props) =>
-    props.user === "me"
-      ? "row-reverse"
-      : "row"}; // 사용자 본인이 보낸 메시지인 경우 시간을 왼쪽에, 아닌 경우 오른쪽에 위치시킵니다.
-  align-items: flex-end; // 메시지와 시간을 같은 선상에 놓습니다.
+    props.user === "me" ? "row-reverse" : "row"};
+  align-items: flex-end;
   justify-content: ${(props) =>
     props.user === "me" ? "flex-end" : "flex-start"};
 `;
 
-// MessageTime 스타일 컴포넌트에 margin-left를 추가하여 메시지와 시간 사이 간격을 조정합니다.
 const MessageTime = styled.div`
   font-size: 0.7rem;
   margin-left: 0.2rem;
@@ -411,15 +427,15 @@ const MessageTime = styled.div`
   padding-bottom: 0.15rem;
 `;
 
-// Message 스타일 컴포넌트의 스타일을 조금 조정합니다.
 const Message = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0.4rem 0.7rem;
   border-radius: 1.5rem;
-  max-width : 85%;
+  max-width: 85%;
   font-weight: bold;
+  
   margin-left: 0.3rem;
   background-color: ${({ user }) =>
     user === "me" ? "var(--foreground-color)" : "var(--primary-color)"};
@@ -428,6 +444,5 @@ const Message = styled.div`
   overflow-wrap: anywhere;
   @media (max-width: 480px) {
     font-size: 1.2rem;
-    font-weight: 500;
   }
 `;

@@ -43,7 +43,6 @@ export default function Login() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("token", data.accessToken); // JWT 토큰 저장
-        alert("로그인 성공");
         navigate("/home");
       } else {
         const error = await response.json();

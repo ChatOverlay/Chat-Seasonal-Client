@@ -13,16 +13,16 @@ export default function HomePage() {
   const [totalMileage, setTotalMileage] = useState(0);
   const { newAdded } = useSharedState();
   const [loading, setLoading] = useState(true);
-
+  const [mileageLoading, setMileageLoading] = useState(true);
 
   useLoadingTimeout(loading, 5000); // 로딩 시간 초과 시 Login 창으로 이동
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchCourses() {
       setLoading(true);
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/api/homepage/courses`,
+          `${import.meta.env.VITE_API_URL}/user/courses`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -30,20 +30,42 @@ export default function HomePage() {
           }
         );
         const data = await response.json();
-        setUpcomingCourse(data.upcomingCourse);
-        setTotalMileage(data.totalMileage);
+        setUpcomingCourse(data.courseDetails);
       } catch (error) {
         console.error("Error fetching homepage data:", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    async function fetchMileage() {
+      setMileageLoading(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/user/mileage`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setTotalMileage(data.totalMileage);
+      } catch (error) {
+        console.error("Error fetching mileage data:", error);
+      } finally {
+        setMileageLoading(false);
+      }
+    }
+    fetchMileage();
   }, [newAdded]);
 
-  const handleRoomClick = (room, courseId, activeSession) => {
-    if (activeSession) {
-      navigate(`/chat/${room}`, { state: { roomId: courseId } });
+  const handleRoomClick = (room, courseCode, activeSession) => {
+    if (!activeSession) {
+      navigate(`/chat/${room}`, { state: { roomId: courseCode } });
     } else {
       alert("해당 수업시간이 아닙니다.");
     }
@@ -63,7 +85,7 @@ export default function HomePage() {
         ) : (
           <>
             <Section>
-              <SectionTitle>내 수업 바로가기</SectionTitle>
+              <SectionTitle>수업 바로가기</SectionTitle>
               {upcomingCourse ? (
                 <div
                   className={`navbar__list__item_home ${
@@ -72,7 +94,7 @@ export default function HomePage() {
                   onClick={() =>
                     handleRoomClick(
                       upcomingCourse.lectureRoom,
-                      upcomingCourse.courseId,
+                      upcomingCourse.courseCode,
                       upcomingCourse.inSession
                     )
                   }
@@ -95,7 +117,7 @@ export default function HomePage() {
                       {upcomingCourse.lectureRoom}
                     </div>
                     <div className="sub-title-container">
-                      {upcomingCourse.lectureTimes}
+                      {upcomingCourse.lectureTime}
                     </div>
                   </div>
                   <div className="icon__arrow__container">
@@ -107,8 +129,16 @@ export default function HomePage() {
               )}
             </Section>
             <Section>
-              <SectionTitle>내 포인트</SectionTitle>
-              {totalMileage > 0 ? (
+              <SectionTitle>수업 참여 포인트</SectionTitle>
+              {mileageLoading ? (
+                <div className="loading-container">
+                  <PulseLoader
+                    size={15}
+                    color={"var(--foreground-color)"}
+                    loading={mileageLoading}
+                  />
+                </div>
+              ) : totalMileage > 0 ? (
                 <div
                   className={`navbar__list__item_home ${"inactive"}`}
                   style={{ color: "var(--primary-color)" }}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TextField, FormControl, InputLabel } from "@mui/material";
+import { TextField, FormControl } from "@mui/material";
 import Logo from "../../assets/backgroundImg/clatalk.png";
 import { Link, useNavigate } from "react-router-dom";
 import LoadingModal from "../modals/LoadingModal";
