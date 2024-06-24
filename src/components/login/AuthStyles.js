@@ -177,3 +177,17 @@ export const StyledSelect = styled.select`
   }
   
 `;
+
+export const LoadingContainer = styled.div`
+    display: flex;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.1); /* Semi-transparent background */
+    z-index: 1000; /* Ensure the overlay is above other content */
+
+`;

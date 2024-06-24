@@ -17,7 +17,6 @@ export default function HomePage() {
 
   useLoadingTimeout(loading, 5000); // 로딩 시간 초과 시 Login 창으로 이동
 
-  console.log("랜더링됨");
 
   useEffect(() => {
     const fetchCourses = async () => {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import PulseLoader from "react-spinners/PulseLoader";
 import Logo from "../../assets/backgroundImg/clatalk.png";
-import LoadingModal from "../modals/LoadingModal";
 import {
   AuthContainer,
   StyledImgContainer,
@@ -13,7 +13,8 @@ import {
   ButtonContainer,
   SubmitButton,
   textFieldSx,
-} from "./AuthStyles"; // SignupStyles 임포트
+  LoadingContainer,
+} from "./AuthStyles";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -45,8 +46,7 @@ export default function Login() {
         localStorage.setItem("token", data.accessToken); // JWT 토큰 저장
         navigate("/home");
       } else {
-        const error = await response.json();
-        alert(error.message);
+        alert("학번 혹은 비밀번호가 일치하지 않습니다.");
       }
     } catch (error) {
       console.error("로그인 실패:", error);
@@ -63,7 +63,11 @@ export default function Login() {
 
   return (
     <AuthContainer>
-      {loading && <LoadingModal />}
+      {loading && (
+        <LoadingContainer>
+          <PulseLoader size={15} color={"var(--foreground-color)"} loading={loading} />
+        </LoadingContainer>
+      )}
       <Container>
         <StyledImgContainer>
           <StyledImg src={Logo} alt="ClaTalk Logo" />
